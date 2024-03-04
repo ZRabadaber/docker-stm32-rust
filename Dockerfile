@@ -2,28 +2,37 @@ FROM ubuntu:24.04
 ENV TZ=Europe/Moscow
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt update && \
-  apt install -yq \
-  git curl ninja-build meson openocd gdb-multiarch default-jre \
+RUN apt-get update && \
+  apt-get install -yq \
+  git wget curl build-essential git cmake ninja-build meson openocd gdb-multiarch default-jre
+
+ENV CARGO_HOME=/usr
+ENV RUSTUP_HOME=/usr
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+RUN cargo install cargo-binutils \
+  && rustup component add llvm-tools-preview \
+  && rustup component add rust-analyzer \
+  && rustup component add rust-src \
+  && rustup target add thumbv6m-none-eabi \
+  && rustup target add thumbv7m-none-eabi \
+  && rustup target add thumbv7em-none-eabi \
+  && rustup target add thumbv7em-none-eabihf \
+  && rustup target add thumbv8m.base-none-eabi \
+  && rustup target add thumbv8m.main-none-eabi \
+  && rustup target add thumbv8m.main-none-eabihf \
+  && cargo install svd2rust
+
+ARG jlink=JLink_Linux_V794k_x86_64.deb
+COPY ${jlink} /tmp/
+RUN apt-get install -yq /tmp/${jlink}; exit 0
+RUN rm /tmp/${jlink}
+
+RUN apt-get clean \
   && rm -rf /var/cache/apk/*
 
-#RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-COPY rustup-init /tmp/
-RUN /tmp/rustup-init -y
-
-RUN $HOME/.cargo/bin/cargo install cargo-binutils
-RUN $HOME/.cargo/bin/rustup component add llvm-tools-preview
-
-RUN $HOME/.cargo/bin/rustup target add thumbv6m-none-eabi
-RUN $HOME/.cargo/bin/rustup target add thumbv7m-none-eabi
-RUN $HOME/.cargo/bin/rustup target add thumbv7em-none-eabi
-RUN $HOME/.cargo/bin/rustup target add thumbv7em-none-eabihf
-RUN $HOME/.cargo/bin/rustup target add thumbv8m.base-none-eabi
-RUN $HOME/.cargo/bin/rustup target add thumbv8m.main-none-eabi
-RUN $HOME/.cargo/bin/rustup target add thumbv8m.main-none-eabihf
-RUN $HOME/.cargo/bin/cargo install svd2rust
-
+USER ubuntu
 WORKDIR /workspace
-ENV PATH=$HOME/.cargo/bin:$PATH
 
-CMD [ "/bin/sh" ]
+CMD [ "/bin/bash" ]
