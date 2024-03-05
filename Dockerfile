@@ -5,7 +5,7 @@ ENV TZ=Europe/Moscow
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
   apt-get install -yq \
-  git wget curl build-essential git cmake ninja-build meson openocd gdb-multiarch default-jre
+  git wget curl build-essential git cmake ninja-build meson openocd gdb-multiarch default-jre libfuse2
 
 ARG jlink=JLink_Linux_V794k_x86_64.deb
 COPY ${jlink} /tmp/
@@ -17,10 +17,9 @@ RUN apt-get clean \
 
 ENV CARGO_HOME=/usr/local/cargo
 ENV RUSTUP_HOME=/usr/local/rustup
+ENV PATH=$CARGO_HOME/bin:$RUSTUP_HOME/bin:$PATH
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
-ENV PATH=$CARGO_HOME/bin:$RUSTUP_HOME/bin:$PATH
 
 RUN cargo install cargo-binutils \
   && rustup component add llvm-tools-preview \
