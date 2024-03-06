@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV TZ=Europe/Moscow
 
@@ -36,9 +36,7 @@ RUN cargo install cargo-binutils \
 
 RUN chmod -R a+rw $RUSTUP_HOME $CARGO_HOME;
 
-RUN useradd -ms /bin/bash vscode
-USER vscode
-
+USER ubuntu
 WORKDIR /workspace
 
 CMD [ "/bin/bash" ]
