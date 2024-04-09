@@ -5,7 +5,7 @@ ENV TZ=Europe/Moscow
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
   apt-get install -yq \
-  git wget curl build-essential git cmake ninja-build meson openocd gdb-multiarch default-jre libfuse2
+  git wget curl build-essential git cmake ninja-build meson openocd gdb-multiarch default-jre libfuse2 stlink-tools
 
 ARG jlink=JLink_Linux_V794k_x86_64.deb
 COPY ${jlink} /tmp/
